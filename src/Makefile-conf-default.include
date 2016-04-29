@@ -1,0 +1,9 @@
+# full path to contiki
+CONTIKI=/full/path/to/contiki
+
+# whether ipv6 should be used
+NETWORK_IPV6 = 1
+
+# whether contiki replacements are used from local library or have been replaced in core contiki files
+# (some compilers do not the support the local library replacements)
+CONTIKI_REPLACEMENTS_LOCAL=1
