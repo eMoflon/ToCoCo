@@ -1,0 +1,13 @@
+.cproject
+.project
+.settings/*
+src/app-conf.h
+src/Makefile.target
+src/Makefile-conf.include
+src/contiki-*.*
+src/symbols.*
+src/*.ihex
+src/*.sky
+src/*.z1
+src/obj_*/*
+evaluation/vendor

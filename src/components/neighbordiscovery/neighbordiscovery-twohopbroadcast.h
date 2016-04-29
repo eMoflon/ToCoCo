@@ -1,0 +1,40 @@
+#ifndef __NEIGHBORDISCOVERY_TWOHOP_BROADCAST_H_
+#define __NEIGHBORDISCOVERY_TWOHOP_BROADCAST_H_
+
+#include <stdint.h>
+
+#include "../../app-conf.h"
+#include "../../lib/buffer.h"
+#include "../../lib/networkaddr.h"
+
+#ifndef COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_INTERVALBROADCAST_MIN
+#define COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_INTERVALBROADCAST_MIN 60
+#endif
+
+#ifndef COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_INTERVALBROADCAST_MAX
+#define COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_INTERVALBROADCAST_MAX 90
+#endif
+
+#ifndef COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_DECAYINTERVAL
+#define COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_DECAYINTERVAL 90
+#endif
+
+#ifndef COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_LINKTTL
+#define COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_LINKTTL 5
+#endif
+
+#ifndef COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_MAXBROADCASTS
+#define COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_MAXBROADCASTS -1
+#endif
+
+void twohop_broadcast_init();
+
+void twohop_broadcast_broadcastpacket_fill(buffer_t  *data);
+
+void twohop_broadcast_broadcastpacket_handle(const networkaddr_t *sent_by, buffer_t *data, int8_t rssi);
+
+void twohop_broadcast_decay_links();
+
+list_t twohop_broadcast_neighbors_get_all();
+
+#endif /* __NEIGHBORDISCOVERY_TWOHOP_BROADCAST_H_ */
