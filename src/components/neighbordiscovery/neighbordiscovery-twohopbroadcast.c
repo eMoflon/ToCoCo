@@ -207,6 +207,9 @@ void _twohop_broadcast_handle(const networkaddr_t *sent_by, buffer_t *data, int8
 			sender->weight_node2_to_node1 = edgeweight;
 			sender->ttl_node1_to_node2 = 0;
 			sender->ttl_node2_to_node1 = COMPONENT_NEIGHBORDISCOVERY_TWOHOPBROADCAST_LINKTTL;
+			#ifdef TOPOLOGYCONTROL_LINKS_HAVE_STATES
+			sender->state=UNCLASSIFIED;
+			#endif
 			list_add(list_neighbors, sender);
 		}
 	} else {
@@ -241,6 +244,9 @@ void _twohop_broadcast_handle(const networkaddr_t *sent_by, buffer_t *data, int8
 					twohop->weight_node2_to_node1 = COMPONENT_NEIGHBORDISCOVERY_WEIGHTUNKNOWN;
 					twohop->ttl_node1_to_node2 = 0;
 					twohop->ttl_node2_to_node1 = 0;
+					#ifdef TOPOLOGYCONTROL_LINKS_HAVE_STATES
+					twohop->state=UNCLASSIFIED;
+					#endif
 					list_add(list_neighbors, twohop);
 				}
 			}

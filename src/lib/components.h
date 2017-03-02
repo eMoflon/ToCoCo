@@ -59,7 +59,12 @@ typedef struct ignored_link {
 	struct ignored_link *next;
 	networkaddr_t *address;
 } ignored_link_t;
-
+/**
+ * The state of a link, UNCLASSIFIED means it has not been touched by the tc algorithm yet, ACTIVE means this link is not allowed to be removed, INACTIVE means it shall be removed from the topology and PROCESSED, means it has been touched but not closer classified
+ */
+#ifdef TOPOLOGYCONTROL_LINKS_HAVE_STATES 
+typedef enum linkstate { UNCLASSIFIED, ACTIVE, INACTIVE, PROCESSED }LinkState;
+#endif
 /**
  * Visible Neighbor in topology
  */
@@ -96,6 +101,9 @@ typedef struct neighbor {
 	 */
 	uint8_t ttl_node1_to_node2;
 	uint8_t ttl_node2_to_node1;
+	#ifdef TOPOLOGYCONTROL_LINKS_HAVE_STATES 
+	LinkState state;
+	#endif
 } neighbor_t;
 
 /**
