@@ -90,27 +90,30 @@ namespace GRAPHANALYZER{
 
     bool Graph::fromEvalOutput(const std::string filename, Graph *destination){
         std::ifstream input(filename);
-        std::string line;
         std::istringstream iss;
-        while(!input.eof()){
-            getline(input,line,'\n');
-            iss.str(line);
+        for( std::string line; getline( input, line ); )
+        {
+            std::cout<<"reading line "<<line<<std::endl;
+            iss=std::istringstream(line);
             std::string type;
             iss>>type;
+            std::cout<<"type is "<<type<<std::endl;
             if(type.compare("EDGE")==0){
                 if(!destination->parseEdge(iss)){
-                    break;
+                    std::cout<<"Failed to parse Edge from "<<line<<std::endl;
+                    return false;
                 }
             }else if(type.compare("NODE")==0){
                 if(!destination->parseNode(iss)){
-                    break;
+                    std::cout<<"Failed to parse Node from "<<line<<std::endl;
+                    return false;
                 }
-            }else break;
+            }else{
+                std::cout<<"Unknown type"<<std::endl;
+                return false;
+            }
         }
-        if(iss.str().empty())
-            return true;
-        std::cout<<"Error while reading the input"<<std::endl;
-        return false;
+        return true;
     }
 
     bool Graph::toDot(const std::string filename) const{
