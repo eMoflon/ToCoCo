@@ -20,7 +20,7 @@ $climate->arguments->add([
 	],
 	"evaluation" => [
 		"longPrefix" => "evaluation",
-		"description" => "evaluation to run on the source file: prr|energy-milliamperehour|energy-ticks|timeline|powercalibration|graph-routing|graph-neighborhood",
+		"description" => "evaluation to run on the source file: prr|energy-milliamperehour|energy-ticks|timeline|powercalibration|graph-routing|graph-neighborhood|graph-text|stretch-plot",
 		"required" => true
 	],
 	"open" => [
@@ -67,6 +67,8 @@ $evaluation = [
 	"powercalibration" => new App\Analyzer\PowercalibrationAnalyzer(),
 	"graph-routing" => new App\Analyzer\RoutingGraphAnalyzer($climate->arguments->get("graph-minute"), (isset($testbed[$climate->arguments->get("testbed")])) ? $testbed[$climate->arguments->get("testbed")]->getMotePositions() : []),
 	"graph-neighborhood" => new App\Analyzer\NeighborhoodGraphAnalyzer($climate->arguments->get("graph-minute"), (isset($testbed[$climate->arguments->get("testbed")])) ? $testbed[$climate->arguments->get("testbed")]->getMotePositions() : []),
+	"graph-text" => new App\Analyzer\BridgeGraphAnalyzer($climate->arguments->get("graph-minute"),(isset($testbed[$climate->arguments->get("testbed")]))? $testbed[$climate->arguments->get("testbed")]->getMotePositions():[]),
+	"stretch-plot" => new App\Analyzer\StretchAnalyzer(),
 ];
 
 // better error messages on cli output

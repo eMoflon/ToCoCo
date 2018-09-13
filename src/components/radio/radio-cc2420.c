@@ -23,7 +23,9 @@ int8_t component_radio_lastrssi() {
 }
 
 void component_radio_txpower_set(int8_t txpower) {
+	printf("SetPowerLevel %d\n",txpower);
 	cc2420_set_txpower(actual_txpower = txpower);
+	printf("GetPowerLevel %d\n",cc2420_get_txpower());
 }
 
 int8_t component_radio_txpower_get() {

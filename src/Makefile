@@ -29,9 +29,17 @@ endif
 TARGET_LIBFILES += -lm
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
 CFLAGS += -DCONTIKI_REPLACEMENTS_LOCAL=$(CONTIKI_REPLACEMENTS_LOCAL)
+CFLAGS += -ggdb
+
+# The following block adds a preprocessor #define for COMPONENT_TOPOLOGYCONTROL if the environment variable
+# TOPOLOGYCONTROL_PREDEFINED_ALGORITHM is set.
+# This can be used to pre-configure the active topology control module from outside
+ifdef TOPOLOGYCONTROL_PREDEFINED_ALGORITHM
+    CFLAGS += -DCOMPONENT_TOPOLOGYCONTROL=$(TOPOLOGYCONTROL_PREDEFINED_ALGORITHM)
+endif
 
 ifndef UNUSED
-	UNUSED := ${shell rm -f app.$(TARGET)} # alwys recompile app.c that git version string is up2date
+	UNUSED := ${shell rm -f app.$(TARGET)} # always recompile app.c that git version string is up2date
 	UNUSED := ${shell rm -f obj_$(TARGET)/utilities.*} # always recompile utilities.c that random seed is updated every time
 endif
 
