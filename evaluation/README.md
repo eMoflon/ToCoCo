@@ -38,6 +38,11 @@ To obtain a comparison of two different output topologies a and b after 5 minute
 ```
 ./compareResults.sh file1 file2 test.dot -ab 5
 ```
+
+To obtain a comparison of an input and an output topology after 10 and 14 minutes execute the following
+```
+ ./compareResultsInOut.sh <serial.csv> output.dot
+```
 If you prefer the results as a png append another parameter ``-toPNG``
 
 # Calculate Combined Stretch and Plots
