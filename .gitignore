@@ -1,6 +1,10 @@
 .cproject
 .project
 .settings/*
+**/*.o
+**/output
+**/*cMoflonDemoLanguage*
+**/*~
 src/app-conf.h
 src/Makefile.target
 src/Makefile-conf.include
