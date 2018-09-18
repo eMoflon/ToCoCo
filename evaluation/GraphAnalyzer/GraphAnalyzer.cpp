@@ -1,5 +1,6 @@
 #ifndef GRAPHANALYZER_GRAPHANALYZER_CPP
 #define GRAPHANALZYER_GRAPHANALZYER_CPP
+#include <cstdlib>
 #include <iostream>
 #include <GraphAnalyzer.hpp>
 #include <Graph.hpp>

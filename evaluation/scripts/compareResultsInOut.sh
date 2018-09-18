@@ -1,21 +1,38 @@
 workingDirectory=$PWD
-evalDirectory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo $evalDirectory
 DIR=${BASH_SOURCE[0]}
+scriptDirectory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 evaluation=$1
+
+[ -f $1 ] || {
+echo "Expect Serial input file as first parameter"
+exit 1
+}
+
+evalDirectory=$(dirname $1)/output
+echo "Evaluation directory: $evalDirectory"
+mkdir -p $evalDirectory
+
 inputFormat="-eval"
 outputFormat="-dot"
-output=$2
+output=03_TopologyDifference.dot
 comparison="-io"
-echo "Comparing $evaluation at minute 10 with $evaluation at minute 14"
-$evalDirectory/../cli.php --testbed flocklab --evaluation graph-text --source $evaluation --destination $evalDirectory/output/evalA.txt --graph-minute 10
-$evalDirectory/../cli.php --testbed flocklab --evaluation graph-text --source $evaluation --destination $evalDirectory/output/evalB.txt --graph-minute 14
-if [ ! -f $evalDirectory/../GraphAnalyzer/graphanalyzer ]; then
-    cd $evalDirectory/../GraphAnalyzer && make
-    cd $workingDirectory
-fi
-$evalDirectory/../GraphAnalyzer/graphanalyzer $inputFormat $evalDirectory/output/evalA.txt $evalDirectory/output/evalB.txt $comparison $outputFormat $output
+testbed="flocklab"
+beforeTimeMinutes=10
+afterTimeMinutes=14
+
+echo "Comparing $evaluation at minute $beforeTimeMinutes with $evaluation at minute $afterTimeMinutes"
+$scriptDirectory/../cli.php --testbed $testbed --evaluation graph-text --source $evaluation --destination $evalDirectory/evalA.txt --graph-minute $beforeTimeMinutes
+$scriptDirectory/../cli.php --testbed $testbed --evaluation graph-text --source $evaluation --destination $evalDirectory/evalB.txt --graph-minute $afterTimeMinutes
+
+cd $scriptDirectory/../GraphAnalyzer
+make
+cd $workingDirectory
+
+$scriptDirectory/../GraphAnalyzer/graphanalyzer $inputFormat $evalDirectory/evalA.txt $evalDirectory/evalB.txt $comparison $outputFormat $evalDirectory/$output
+
 echo "Generating PNG file "${output%%.*}".png"
-dot -Tpng -Kneato -n $output -o "${output%%.*}".png
-$evalDirectory/../cli.php --destination $evalDirectory/output/ktc_before.png --evaluation graph-neighborhood --graph-minute 10 --source $evaluation --testbed flocklab
-$evalDirectory/../cli.php --destination $evalDirectory/output/ktc_after.png --evaluation graph-neighborhood --graph-minute 14 --source $evaluation --testbed flocklab
+dot -Tpng -Kneato -n -o "$evalDirectory/${output%%.*}.png" $evalDirectory/$output
+
+$scriptDirectory/../cli.php --destination $evalDirectory/01_TopologyBefore.png --evaluation graph-neighborhood --graph-minute 10 --source $evaluation --testbed $testbed
+$scriptDirectory/../cli.php --destination $evalDirectory/02_TopologyAfter.png --evaluation graph-neighborhood --graph-minute 14 --source $evaluation --testbed $testbed

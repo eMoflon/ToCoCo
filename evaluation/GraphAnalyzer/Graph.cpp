@@ -90,14 +90,11 @@ namespace GRAPHANALYZER{
 
     bool Graph::fromEvalOutput(const std::string filename, Graph *destination){
         std::ifstream input(filename);
-        std::istringstream iss;
         for( std::string line; getline( input, line ); )
         {
-            std::cout<<"reading line "<<line<<std::endl;
-            iss=std::istringstream(line);
+            std::istringstream iss(line);
             std::string type;
             iss>>type;
-            std::cout<<"type is "<<type<<std::endl;
             if(type.compare("EDGE")==0){
                 if(!destination->parseEdge(iss)){
                     std::cout<<"Failed to parse Edge from "<<line<<std::endl;

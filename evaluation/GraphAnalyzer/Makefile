@@ -2,10 +2,14 @@ CC = g++
 INCDIR=include
 OBJECTS = Node.o Edge.o Graph.o DeltaGraph.o InOutDeltaGraph.o ABDeltaGraph.o GraphAnalyzer.o
 CFLAGS = -Wall -g -std=c++11 -I$(INCDIR)
-NAME = graphanalyzer
+NAME = graphanalyzer.exe
 
-graphanalyzer: $(OBJECTS)
-	$(CC) -o $(NAME) $(OBJECTS)
+.PHONY: all clean
+
+all: $(NAME)
+
+$(NAME): $(OBJECTS)
+	$(CC) -o $@ $(OBJECTS)
 
 %.o: %.cpp
 	$(CC) -c $(CFLAGS) $<
