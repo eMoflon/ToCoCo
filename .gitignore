@@ -1,3 +1,4 @@
+*~
 .cproject
 .project
 .settings/*
@@ -11,3 +12,5 @@ src/*.sky
 src/*.z1
 src/obj_*/*
 evaluation/vendor
+# The following line excludes generated TC algorithms
+src/components/topologycontrol/topologycontrol-*
