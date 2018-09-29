@@ -6,6 +6,7 @@
 **/output
 **/*cMoflonDemoLanguage*
 **/*~
+src/app.co
 src/app-conf.h
 src/Makefile.target
 src/Makefile-conf.include

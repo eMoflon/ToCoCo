@@ -10,92 +10,51 @@
 cwd=$(pwd)
 
 rootOfSource=../../../src
-cd $rootOfSource
-
+outputFolder=$rootOfSource/output/BatchCompilation
 target="sky"
-# 3rd algorithm
+applicationConstantDefinitions="$rootOfSource/app-conf-constants.h"
 
-imageFile="lmstGen.$target"
-implementationFile="topologycontrol-cMoflonDemoLanguage-LmstAlgorithm.c"
-appConfSelector="7" # According to app-conf-constants.h
+# Adjust the following list according to the COMPONENT_TOPOLOGYCONTROL constants in $applicationConstantDefinitions
+algorithmIdentifiers=(\
+NULL \
+AKTC \
+LKTC \
+LMST \
+CMOFLONDEMOLANGUAGE_LSTARKTCALGORITHM \
+CMOFLONDEMOLANGUAGE_LSTARKTCALGORITHM \
+CMOFLONDEMOLANGUAGE_KTCALGORITHM)
 
-echo "================================================================================================================="
-echo "= Compiling for $imageFile"
-echo "==="
-make clean TARGET=$target
-make app.$target TARGET=$target TC_IMPL_FILE=$implementationFile TOPOLOGYCONTROL_PREDEFINED_ALGORITHM=$appConfSelector
-[ "$?" == "0" ] && echo "----> SUCCESS <----" || echo "----> FAILURE <----"
-[ -f "app.$target" ] && cp app.$target $imageFile && rm app.$target
+mkdir -p $outputFolder
+rm $outputFolder/*
 
-# 1st algorithm
+for algorithmIdentifier in ${algorithmIdentifiers[@]};
+do
 
-imageFile="kTCGen.$target"
-implementationFile="topologycontrol-cMoflonDemoLanguage-KtcAlgorithm.c"
-appConfSelector="8" # According to app-conf-constants.h
+  echo "================================================================================================================="
+  echo "= Compiling for $algorithmIdentifier"
+  echo "==="
 
-echo "================================================================================================================="
-echo "= Compiling for $imageFile"
-echo "==="
-make clean TARGET=$target
-make app.$target TARGET=$target TC_IMPL_FILE=$implementationFile TOPOLOGYCONTROL_PREDEFINED_ALGORITHM=$appConfSelector
-[ "$?" == "0" ] && echo "----> SUCCESS <----" || echo "----> FAILURE <----"
-[ -f "app.$target" ] && cp app.$target $imageFile && rm app.$target
+  imageFile="$outputFolder/$algorithmIdentifier.$target"
+  implementationFile=$(grep "COMPONENT_TOPOLOGYCONTROL_IMPL_FILE_${algorithmIdentifier}" $applicationConstantDefinitions  | cut -d" " -f3)
+  appConfSelector=$(grep "COMPONENT_TOPOLOGYCONTROL_${algorithmIdentifier}" $applicationConstantDefinitions | cut -d" " -f3)
 
-# 2nd algorithm
+  [ "" == "$implementationFile" ] && echo "WARN: Implementation file not found!"
+  [ "" == "$appConfSelector" ] && echo "ERROR: Algorithm ID not found!" && exit
 
-imageFile="lkTCGen.$target"
-implementationFile="topologycontrol-cMoflonDemoLanguage-LStarKtcAlgorithm.c"
-appConfSelector="6" # According to app-conf-constants.h
+  cmd="make -C $rootOfSource clean TARGET=$target"
+  echo "$cmd"
+  $cmd
 
-echo "================================================================================================================="
-echo "= Compiling for $imageFile"
-echo "==="
-make clean TARGET=$target
-make app.$target TARGET=$target TC_IMPL_FILE=$implementationFile TOPOLOGYCONTROL_PREDEFINED_ALGORITHM=$appConfSelector
-[ "$?" == "0" ] && echo "----> SUCCESS <----" || echo "----> FAILURE <----"
-[ -f "app.$target" ] && cp app.$target $imageFile && rm app.$target
-exit
-# 4th algorithm
+  cmd="make -C $rootOfSource app.$target TARGET=$target TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE=$implementationFile TOPOLOGYCONTROL_PREDEFINED_ALGORITHM=$appConfSelector"
+  echo "$cmd"
+  $cmd
 
-imageFile="lmstMan.$target"
-implementationFile="topologycontrol-lmst.c"
-appConfSelector="4" # According to app-conf-constants.h
+  [ "$?" == "0" ] && {
+    echo "----> SUCCESS for $algorithmIdentifier<----"
+    cp $rootOfSource/app.$target $imageFile
+  } || {
+    echo "----> FAILURE for $algorithmIdentifier <----"
+    exit
+  }
+done
 
-echo "================================================================================================================="
-echo "= Compiling for $imageFile"
-echo "==="
-make clean TARGET=$target
-make app.$target TARGET=$target TC_IMPL_FILE=$implementationFile TOPOLOGYCONTROL_PREDEFINED_ALGORITHM=$appConfSelector
-[ "$?" == "0" ] && echo "----> SUCCESS <----" || echo "----> FAILURE <----"
-[ -f "app.$target" ] && cp app.$target $imageFile && rm app.$target
-
-# 5th algorithm
-
-imageFile="lktcMan.$target"
-implementationFile="topologycontrol-lktc.c"
-appConfSelector="3" # According to app-conf-constants.h
-
-echo "================================================================================================================="
-echo "= Compiling for $imageFile"
-echo "==="
-make clean TARGET=$target
-make app.$target TARGET=$target TC_IMPL_FILE=$implementationFile TOPOLOGYCONTROL_PREDEFINED_ALGORITHM=$appConfSelector
-[ "$?" == "0" ] && echo "----> SUCCESS <----" || echo "----> FAILURE <----"
-[ -f "app.$target" ] && cp app.$target $imageFile && rm app.$target
-
-# 3rd algorithm
-
-imageFile="ktcMan.$target"
-implementationFile="topologycontrol-aktc.c"
-appConfSelector="2" # According to app-conf-constants.h
-
-echo "================================================================================================================="
-echo "= Compiling for $imageFile"
-echo "==="
-make clean TARGET=$target
-make app.$target TARGET=$target TC_IMPL_FILE=$implementationFile TOPOLOGYCONTROL_PREDEFINED_ALGORITHM=$appConfSelector
-[ "$?" == "0" ] && echo "----> SUCCESS <----" || echo "----> FAILURE <----"
-[ -f "app.$target" ] && cp app.$target $imageFile && rm app.$target
-
-
-cd $cwd
