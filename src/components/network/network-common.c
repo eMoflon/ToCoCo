@@ -142,7 +142,7 @@ void component_network_ignoredlinks_add(networkaddr_t *address) {
 		entry->address = networkaddr_reference_alloc(address);
 		list_add(list_ignoredlinks, entry);
 
-		PRINTF("DEBUG: [network-common] added ignored link %s\n", networkaddr2string_buffered(change_from));
+		PRINTF("DEBUG: [network-common] added ignored link %s\n", networkaddr2string_buffered(address));
 		network_ignoredlink_notify(true, address);
 	}
 }

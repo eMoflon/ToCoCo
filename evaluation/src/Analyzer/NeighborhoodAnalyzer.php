@@ -62,11 +62,13 @@ class NeighborhoodAnalyzer implements AnalyzerInterface {
 					if(!$node2->hasEdgeFrom($node1)) {
 						$edge = $node2->createEdgeTo($node1);
 						$edge->setAttribute("weight", $moteNeighborhood["weight"]["node2_to_node1"]);
+						$weight=$moteNeighborhood["weight"]["node2_to_node1"];
 					} else {
 						$oldEdge = $node2->getEdgesFrom($node1)->getEdgeFirst();
 						$oldEdge->destroy();
 						
 						$edge = $node1->createEdge($node2);
+						$weight=array_sum($moteNeighborhood["weight"]) / 2;
 						$edge->setAttribute("weight", array_sum($moteNeighborhood["weight"]) / 2);
 					}
 				}

@@ -73,6 +73,28 @@ trait SerializeTrait {
 		return $data;
 	}
 	
+	protected function _unserializeNoRuntime($filename, $skipAggregates = true) {
+		$handle = fopen($filename, "r");
+		$header = null;
+		
+		$data = [];
+		while($line = fgetcsv($handle, 0)) {
+			if($header === null) {
+				$header = $line;
+				continue;
+			}
+			
+			$unserialized = array_combine($header, $line);
+			foreach($unserialized as &$dataValue)
+				$dataValue = str_replace(",", ".", $dataValue);
+			
+			if(!$skipAggregates || ($unserialized["moteid"] != -1))
+				$data[] = $unserialized;
+		}
+		
+		return $data;
+	}
+
 	/**
 	 * gets serialization filetype
 	 *

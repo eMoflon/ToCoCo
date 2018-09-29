@@ -1,10 +1,12 @@
 {
+    "_comment": "The 'php-64bit' dependency may be omitted on 32bit systems",
     "require": {
         "php-64bit": ">=5.4",
         "ramsey/array_column": "~1.0",
         "mistic100/randomcolor": "~1.0",
         "clue/graph": "~0.9",
         "graphp/graphviz": "~0.1",
+		"graphp/algorithms": "~0.8.0",
         "league/climate" : "~3.1",
         "alom/graphviz": "~1.0",
         "xrstf/ip-utils": "~1.1"

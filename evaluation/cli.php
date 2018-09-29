@@ -20,7 +20,7 @@ $climate->arguments->add([
 	],
 	"evaluation" => [
 		"longPrefix" => "evaluation",
-		"description" => "evaluation to run on the source file: prr|energy-milliamperehour|energy-ticks|timeline|powercalibration|graph-routing|graph-neighborhood",
+		"description" => "evaluation to run on the source file: prr|energy-milliamperehour|energy-ticks|timeline|powercalibration|graph-routing|graph-neighborhood|graph-text|stretch-plot",
 		"required" => true
 	],
 	"open" => [
@@ -67,6 +67,8 @@ $evaluation = [
 	"powercalibration" => new App\Analyzer\PowercalibrationAnalyzer(),
 	"graph-routing" => new App\Analyzer\RoutingGraphAnalyzer($climate->arguments->get("graph-minute"), (isset($testbed[$climate->arguments->get("testbed")])) ? $testbed[$climate->arguments->get("testbed")]->getMotePositions() : []),
 	"graph-neighborhood" => new App\Analyzer\NeighborhoodGraphAnalyzer($climate->arguments->get("graph-minute"), (isset($testbed[$climate->arguments->get("testbed")])) ? $testbed[$climate->arguments->get("testbed")]->getMotePositions() : []),
+	"graph-text" => new App\Analyzer\BridgeGraphAnalyzer($climate->arguments->get("graph-minute"),(isset($testbed[$climate->arguments->get("testbed")]))? $testbed[$climate->arguments->get("testbed")]->getMotePositions():[]),
+	"stretch-plot" => new App\Analyzer\StretchAnalyzer(),
 ];
 
 // better error messages on cli output
@@ -96,6 +98,10 @@ if(!isset($evaluation[$climate->arguments->get("evaluation")])) {
 	exit();
 }
 
+$temporaryFileBasename = sprintf("%s.%s", uniqid(), $evaluation[$climate->arguments->get("evaluation")]->serializationType());
+$filename = sprintf("%s/%s", getTempDirectory(), $temporaryFileBasename);
+$cygwinPath = sprintf("/cygdrive/c/tmp/%s", $temporaryFileBasename);
+
 if(!$climate->arguments->defined("merge")) {
 	// parse testbed log messages
 	if(!isset($testbed[$climate->arguments->get("testbed")])) {
@@ -114,12 +120,14 @@ if(!$climate->arguments->defined("merge")) {
 	$data = $evaluation[$climate->arguments->get("evaluation")]->analyze($messages);
 	
 	// serialize to a temporary file
-	$filename = sprintf("%s/%s.%s", sys_get_temp_dir(), uniqid(), $evaluation[$climate->arguments->get("evaluation")]->serializationType());
 	$evaluation[$climate->arguments->get("evaluation")]->serialize($filename, $data);
 } else {
 	// serialize to a temporary file
-	$filename = sprintf("%s/%s.%s", sys_get_temp_dir(), uniqid(), $evaluation[$climate->arguments->get("evaluation")]->serializationType());
 	$evaluation[$climate->arguments->get("evaluation")]->merge($filename, explode(',', $climate->arguments->get("merge")));
+}
+
+if (!file_exists($filename) && file_exists($cygwinPath)) {
+  copy($cygwinPath, $filename);
 }
 
 // save evaluation to requested file
@@ -134,3 +142,7 @@ if($climate->arguments->defined("open")) {
 
 // print execution time
 $climate->info("evaluated in " . round(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'], 3) . "s");
+
+function getTempDirectory() {
+  return sys_get_temp_dir();
+}

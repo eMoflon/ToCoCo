@@ -2,6 +2,10 @@
 .cproject
 .project
 .settings/*
+**/*.o
+**/output
+**/*cMoflonDemoLanguage*
+**/*~
 src/app-conf.h
 src/Makefile.target
 src/Makefile-conf.include
@@ -14,3 +18,4 @@ src/obj_*/*
 evaluation/vendor
 # The following line excludes generated TC algorithms
 src/components/topologycontrol/topologycontrol-*
+*.exe

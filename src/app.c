@@ -15,6 +15,8 @@
 #define APP_GIT_VERSION "unknown"
 #endif
 
+#define DESIRED_POWER_LEVEL 30
+
 extern struct process component_application;
 extern struct process component_neighbordiscovery;
 extern struct process component_network;
@@ -42,7 +44,6 @@ void broadcast_processevent(process_event_t ev, void *data) {
 PROCESS(mainprocess, "app-" APP_GIT_VERSION);
 PROCESS_THREAD(mainprocess, ev, data) {
     PROCESS_BEGIN();
-
     // start power profiling
     powerstats_init();
 
@@ -80,7 +81,9 @@ PROCESS_THREAD(mainprocess, ev, data) {
 
     broadcast_processevent(BOOT_SYSTEM_COMPLETE, &mainprocess);
     PRINTF("DEBUG: [mainprocess] app booting complete...\n");
-
+	printf("SetPowerLevel %d\n",DESIRED_POWER_LEVEL);
+	cc2420_set_txpower(DESIRED_POWER_LEVEL);
+	printf("GetPowerLevel %d\n",cc2420_get_txpower());
     while(1) {
     	PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&etimer_evaluation));
     	etimer_reset(&etimer_evaluation);
