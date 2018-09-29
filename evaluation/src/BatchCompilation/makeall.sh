@@ -6,8 +6,7 @@
 # 
 # Author: Roland Kluge
 # Date: 2017-03-02
-
-cwd=$(pwd)
+#
 
 rootOfSource=../../../src
 outputFolder=$rootOfSource/output/BatchCompilation
@@ -21,11 +20,11 @@ AKTC \
 LKTC \
 LMST \
 CMOFLONDEMOLANGUAGE_LSTARKTCALGORITHM \
-CMOFLONDEMOLANGUAGE_LSTARKTCALGORITHM \
-CMOFLONDEMOLANGUAGE_KTCALGORITHM)
+CMOFLONDEMOLANGUAGE_LMSTALGORITHM \
+CMOFLONDEMOLANGUAGE_KTCALGORITHM\
+)
 
 mkdir -p $outputFolder
-rm $outputFolder/*
 
 for algorithmIdentifier in ${algorithmIdentifiers[@]};
 do
@@ -57,4 +56,11 @@ do
     exit
   }
 done
+
+# Print CSV of image sizes
+$(cd $outputFolder
+  size *.$target > size_raw.txt
+  sed -r 's/^ *//;s/ *$//;s/\s+/;/g' < size_raw.txt > sizes.csv
+)
+
 
