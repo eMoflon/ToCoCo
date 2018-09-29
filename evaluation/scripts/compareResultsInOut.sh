@@ -1,3 +1,9 @@
+#!/bin/bash
+
+# This script produces topology before-after snapshots for two given points in time
+#
+# Usage: Pass the serial.csv file to analyze as first parameter
+
 workingDirectory=$PWD
 DIR=${BASH_SOURCE[0]}
 scriptDirectory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -13,26 +19,33 @@ evalDirectory=$(dirname $1)/output
 echo "Evaluation directory: $evalDirectory"
 mkdir -p $evalDirectory
 
+cliScript=$scriptDirectory/../cli.php
 inputFormat="-eval"
 outputFormat="-dot"
 output=03_TopologyDifference.dot
 comparison="-io"
 testbed="flocklab"
+sourceAndTestbedStatement="--source $evaluation --testbed $testbed"
 beforeTimeMinutes=10
 afterTimeMinutes=14
+topologyBeforeDotFile=$evalDirectory/01_TopologyBefore.txt
+topologyAfterDotFile=$evalDirectory/02_TopologyAfter.txt
+topologyBeforePlotFile=$evalDirectory/01_TopologyBefore.png
+topologyAfterPlotFile=$evalDirectory/02_TopologyAfter.png
 
 echo "Comparing $evaluation at minute $beforeTimeMinutes with $evaluation at minute $afterTimeMinutes"
-$scriptDirectory/../cli.php --testbed $testbed --evaluation graph-text --source $evaluation --destination $evalDirectory/evalA.txt --graph-minute $beforeTimeMinutes
-$scriptDirectory/../cli.php --testbed $testbed --evaluation graph-text --source $evaluation --destination $evalDirectory/evalB.txt --graph-minute $afterTimeMinutes
+$cliScript $sourceAndTestbedStatement --evaluation graph-text --destination $topologyBeforeDotFile  --graph-minute $beforeTimeMinutes
+$cliScript $sourceAndTestbedStatement --evaluation graph-text --destination $topologyAfterDotFile --graph-minute $afterTimeMinutes
 
 cd $scriptDirectory/../GraphAnalyzer
 make
 cd $workingDirectory
 
-$scriptDirectory/../GraphAnalyzer/graphanalyzer $inputFormat $evalDirectory/evalA.txt $evalDirectory/evalB.txt $comparison $outputFormat $evalDirectory/$output
+$scriptDirectory/../GraphAnalyzer/graphanalyzer $inputFormat $topologyBeforeDotFile $topologyAfterDotFile $comparison $outputFormat $evalDirectory/$output
 
 echo "Generating PNG file "${output%%.*}".png"
 dot -Tpng -Kneato -n -o "$evalDirectory/${output%%.*}.png" $evalDirectory/$output
 
-$scriptDirectory/../cli.php --destination $evalDirectory/01_TopologyBefore.png --evaluation graph-neighborhood --graph-minute 10 --source $evaluation --testbed $testbed
-$scriptDirectory/../cli.php --destination $evalDirectory/02_TopologyAfter.png --evaluation graph-neighborhood --graph-minute 14 --source $evaluation --testbed $testbed
+$cliScript --destination $topologyBeforePlotFile --evaluation graph-neighborhood --graph-minute $beforeTimeMinutes $sourceAndTestbedStatement
+$cliScript --destination $topologyAfterPlotFile --evaluation graph-neighborhood --graph-minute $afterTimeMinutes $sourceAndTestbedStatement
+

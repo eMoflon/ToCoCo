@@ -41,9 +41,9 @@ To obtain a comparison of two different output topologies a and b after 5 minute
 
 To obtain a comparison of an input and an output topology after 10 and 14 minutes execute the following
 ```
- ./compareResultsInOut.sh <serial.csv> output.dot
+ ./compareResultsInOut.sh <serial.csv>
 ```
-If you prefer the results as a png append another parameter ``-toPNG``
+If you prefer the results as a png append the parameter ``-toPNG``
 
 # Calculate Combined Stretch and Plots
 To calculate the combined stretch of multiple experiments just pass the path to the data as first parameter and the path to the evaluation folder as second parameter to the calculateCombinedStretch script.
