@@ -8,8 +8,9 @@
 # Date: 2017-03-02
 #
 
-rootOfSource=../../../src
-outputFolder=$rootOfSource/output/BatchCompilation
+scriptDirectory="$(cd $(dirname $0); pwd)"
+rootOfSource="$scriptDirectory/../../../src"
+outputFolder="$rootOfSource/output/BatchCompilation"
 target="sky"
 applicationConstantDefinitions="$rootOfSource/app-conf-constants.h"
 
