@@ -11,7 +11,7 @@ scriptDirectory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 evaluation=$1
 
 [ -f $1 ] || {
-echo "Expect Serial input file as first parameter"
+echo "Expect serial input file as first parameter, but was $1 in $(pwd)"
 exit 1
 }
 
