@@ -15,7 +15,10 @@ scriptsForEachFolder=(\
 $scriptDirectory/compareResultsInOut.sh \
 $scriptDirectory/makeSerialOutputProperCsv.sh \
 $scriptDirectory/collectTopologyControlRuntime.sh \
+$scriptDirectory/plotTopologyEvolution.sh \
 )
+
+bash $scriptDirectory/untarFlocklabResults.sh
 
 for folder in $(/usr/bin/find . -maxdepth 1 -mindepth 1 -type d)
 do
