@@ -56,6 +56,11 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		// that the node is not rebooted because the CPU thinks there's an endless loop running
 		watchdog_stop();
 
+    
+    unsigned long start=RTIMER_NOW();
+    printf("[topologycontrol]: STATUS: Run\n");
+    // Detailed evaluation output - end
+
 		// Prim algorithm
 		// (connects edge of every node except the graph's root node - the node this code is running on=
 		_lmst_nodelist_reconstruct();
@@ -101,6 +106,12 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 				component_network_ignoredlinks_add(node->address);
 			}
 		}
+
+    // Detailed evaluation output - begin
+    unsigned long finish=RTIMER_NOW();
+    unsigned long runtime= finish>start? finish-start:start-finish;
+    printf("[topologycontrol]: TIME: %lu\n", runtime);
+    // Detailed evaluation output - end
 
 		watchdog_start();
 

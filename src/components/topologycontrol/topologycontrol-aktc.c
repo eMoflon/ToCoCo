@@ -41,6 +41,11 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		// that the node is not rebooted because the CPU thinks there's an endless loop running
 		watchdog_stop();
 
+    // Detailed evaluation output - begin
+    unsigned long start=RTIMER_NOW();
+    printf("[topologycontrol]: STATUS: Run\n");
+    // Detailed evaluation output - end
+
 		// find triangles and drop edges with a-ktc criteria
 		neighbor_t *onehop;
 		for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
@@ -51,6 +56,12 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 				}
 			}
 		}
+
+    // Detailed evaluation output - begin
+    unsigned long finish=RTIMER_NOW();
+    unsigned long runtime= finish>start? finish-start:start-finish;
+    printf("[topologycontrol]: TIME: %lu\n", runtime);
+    // Detailed evaluation output - end
 
 		// drop unidirectional edges
 		for(onehop = list_head(component_neighbordiscovery_neighbors()); onehop != NULL; onehop = list_item_next(onehop)) {
