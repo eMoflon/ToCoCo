@@ -23,3 +23,4 @@ outputFile="${1%.*}_excel.csv"
 # 5 output (may contain commas, therefore, we read the rest of the line and enclose it with quotes)
 #
 awk -F, -- '{printf "%s;%s;\"",$1,$3; for (i=5; i<=NF; i++) printf ("%s,",$i); print "\"";}' $inputFile > $outputFile
+sed -i -r 's/([[:digit:]]+).0/\1/g' $outputFile

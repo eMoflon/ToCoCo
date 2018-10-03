@@ -32,6 +32,7 @@ do
   echo "Plotting for minute $i"
   
   plotFile=$evalDirectory/TopologySnapshotAt_$i.png
-  
+  textFile=$evalDirectory/TopologySnapshotAt_$i.textgraph
+  $cliScript $sourceAndTestbedStatement --evaluation graph-text --destination $textFile --graph-minute $i 
   $cliScript $sourceAndTestbedStatement --evaluation graph-neighborhood --destination $plotFile --graph-minute $i 
 done

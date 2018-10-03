@@ -28,8 +28,10 @@ do
   tar -C $resultsParentFolder -xzf $file
   rm $resultsParentFolder/$file
   
-  resultsSubfolder=./$(/usr/bin/find $resultsParentFolder -mindepth 1 -type d)
-  [ -d $resultsSubfolder ] || {
+  resultsSubfolder=./$(/usr/bin/find $resultsParentFolder -mindepth 1 -maxdepth 1 -type d)
+  
+  echo $resultsSubfolder
+  [ -d "$resultsSubfolder" ] || {
     echo "Unable to find results folder" 
     exit
   }
@@ -44,4 +46,6 @@ do
   echo "  Sanity check: DEGREE = '$degree'"
   time=$(grep "TIME: " $serialFile | head -1)
   echo "  Sanity check: TIME = '$time'"
+  errorCount=$(grep 'ERROR' $serialFile | wc -l)
+  echo "  Number of ERROR lines: '$errorCount'"
 done
