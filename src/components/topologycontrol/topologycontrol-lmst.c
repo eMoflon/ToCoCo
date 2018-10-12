@@ -19,11 +19,15 @@
 #define PRINTF(...)
 #endif
 
+// Returns the larger of the two network addresses of the given link 'edge' : neighbor_t*
 #define NETWORKADDR_MAX(edge) (networkaddr_cmp(edge->node1, edge->node2) < 0 ? edge->node2 : edge->node1)
 
 typedef struct node {
+  // Necessary for usage in lists
 	struct neighbor *next;
+  // The corresponding node in the tree/neighborhood
 	networkaddr_t *address;
+  // The link that caused the connection of address to the tree
 	neighbor_t *edge;
 } node_t;
 
@@ -57,27 +61,49 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		watchdog_stop();
 
     
+    // Detailed evaluation output - begin
     unsigned long start=RTIMER_NOW();
     printf("[topologycontrol]: STATUS: Run\n");
     // Detailed evaluation output - end
 
 		// Prim algorithm
-		// (connects edge of every node except the graph's root node - the node this code is running on=
+		// (connects edge of every node except the graph's root node - the node this code is running on
 		_lmst_nodelist_reconstruct();
 		while(_lmst_nodelist_hasunconnected()) {
 
 			// find best edge according to PRIM and LMST algorithm
-			neighbor_t *edge_actual, *edge_best = NULL;
-			for(edge_actual = list_head(component_neighbordiscovery_neighbors()); edge_actual != NULL; edge_actual = list_item_next(edge_actual)) {
-				bool node1_connected = _lmst_nodelist_isconnected(edge_actual->node1) && !_lmst_nodelist_isconnected(edge_actual->node2);
-				bool node2_connected = _lmst_nodelist_isconnected(edge_actual->node2) && !_lmst_nodelist_isconnected(edge_actual->node1);
+			neighbor_t *edge_current;
+      neighbor_t *edge_best = NULL;
+			for(edge_current = list_head(component_neighbordiscovery_neighbors()); edge_current != NULL; edge_current = list_item_next(edge_current)) {
+
+        // Only node1 is connected
+				bool node1_connected = _lmst_nodelist_isconnected(edge_current->node1) && !_lmst_nodelist_isconnected(edge_current->node2);
+        // Only node2 is connected
+				bool node2_connected = _lmst_nodelist_isconnected(edge_current->node2) && !_lmst_nodelist_isconnected(edge_current->node1);
+
 				if(node1_connected ^ node2_connected) {
-					bool criteria1 = (edge_best == NULL || MAX(edge_actual->weight_node1_to_node2, edge_actual->weight_node2_to_node1) < MAX(edge_best->weight_node1_to_node2, edge_best->weight_node2_to_node1));
-					bool criteria2 = (MAX(edge_actual->weight_node1_to_node2, edge_actual->weight_node2_to_node1) == MAX(edge_best->weight_node1_to_node2, edge_best->weight_node2_to_node1) && networkaddr_cmp(NETWORKADDR_MAX(edge_actual), NETWORKADDR_MAX(edge_best)) < 0);
-					if(criteria1 || criteria2)
-						edge_best = edge_actual;
+
+          // Option 1: no edge_best candidate found until now
+          if (edge_best == NULL) {
+            edge_best = edge_current;
+          } else {
+
+            int weight_actual = MAX(edge_current->weight_node1_to_node2, edge_current->weight_node2_to_node1);
+            int weight_best = MAX(edge_best->weight_node1_to_node2, edge_best->weight_node2_to_node1);
+
+            // Option 2: weight(edge_current) < weight(edge_best)
+					  bool criteria1 = weight_actual < weight_best;
+
+            // Option 3: weight(edge_current) < weight(edge_best)					
+            bool criteria2 = weight_actual == weight_best && networkaddr_cmp(NETWORKADDR_MAX(edge_current), NETWORKADDR_MAX(edge_best)) < 0;
+
+					  if(criteria1 || criteria2)
+						  edge_best = edge_current;
+          }
 				}
+
 			}
+
 			if(edge_best == NULL) {
 				printf("ERROR[topologycontrol-lmst]: no edge for spanning tree found\n");
 				watchdog_reboot(); // we would end in an endless loop
@@ -99,18 +125,26 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 		}
 #endif
 
-		// ignore every node which is not directly connected in the spanning tree
+		/* Ignore the address associated with an ItemNode if 
+     * (i)   the address is not self
+     * (ii)  neither node1 nor node2 of the edge that connects the ItemNode to the tree are self 
+     */
 		node_t *node;
 		for(node = list_head(list_nodelist); node != NULL; node = list_item_next(node)) {
-			if(!networkaddr_equal(node->address, networkaddr_node_addr()) && !networkaddr_equal(node->edge->node1, networkaddr_node_addr()) && !networkaddr_equal(node->edge->node2, networkaddr_node_addr())) {
+			if(!networkaddr_equal(node->address,     networkaddr_node_addr()) && 
+         !networkaddr_equal(node->edge->node1, networkaddr_node_addr()) && 
+         !networkaddr_equal(node->edge->node2, networkaddr_node_addr())) {
 				component_network_ignoredlinks_add(node->address);
 			}
 		}
 
     // Detailed evaluation output - begin
     unsigned long finish=RTIMER_NOW();
-    unsigned long runtime= finish>start? finish-start:start-finish;
-    printf("[topologycontrol]: TIME: %lu\n", runtime);
+    unsigned long ticks= finish>start? finish-start:start-finish;
+    unsigned long runtimeMicro = (ticks * 1000000)/ RTIMER_SECOND;
+    printf("[topologycontrol]: Ticks: %lu\n", ticks);
+    printf("[topologycontrol]: RTIMER_SECOND (ticks per second): %du\n", RTIMER_SECOND);
+    printf("[topologycontrol]: TIME: %lu microsecs.\n", runtimeMicro);
     // Detailed evaluation output - end
 
 		watchdog_start();
@@ -124,6 +158,10 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 	PROCESS_END();
 }
 
+/*
+ * Cleans the list list_nodelist of ItemNodes and 
+ * reinitializes it with one ItemNode for each node that is part of a neighbor_t in the neighborhood
+ */
 void _lmst_nodelist_reconstruct() {
 	// clean list
 	while(list_length(list_nodelist) > 0) {
@@ -176,7 +214,10 @@ void _lmst_nodelist_reconstruct() {
 	}
 }
 
-// every node connected except "/me" because it's the graph's root node
+/*
+ * Returns true if there is an ItemNode with a missing edge
+ * Special case: The ItemNode for the self-node does not have an edge
+ */
 bool _lmst_nodelist_hasunconnected() {
 	node_t *item_node;
 	for(item_node = list_head(list_nodelist); item_node != NULL; item_node = list_item_next(item_node)) {
@@ -187,23 +228,41 @@ bool _lmst_nodelist_hasunconnected() {
 	return false;
 }
 
+/*
+ * Checks whether the edge of the ItemNode corresponding to the given address is already set.
+ * Special case: The ItemNode for the self-node does not have an edge
+ */
 bool _lmst_nodelist_isconnected(networkaddr_t *address) {
 	node_t *item_node;
 	for(item_node = list_head(list_nodelist); item_node != NULL; item_node = list_item_next(item_node)) {
-		if(networkaddr_equal(item_node->address, address) && (item_node->edge != NULL || networkaddr_equal(networkaddr_node_addr(), item_node->address)))
-			return true;
+		if(networkaddr_equal(item_node->address, address) && 
+        (item_node->edge != NULL || networkaddr_equal(networkaddr_node_addr(), item_node->address))
+      )
+		return true;
 	}
 
 	return false;
 }
 
+/*
+ * Adds the given edge to the ItemNodes that correspond to node1 and node2 of the edge
+ * Special case: The edge of the ItemNode of the self-node is never set.
+ */
 void _lmst_nodelist_connect(neighbor_t *edge) {
 	node_t *item_node;
 	for(item_node = list_head(list_nodelist); item_node != NULL; item_node = list_item_next(item_node)) {
-		if(networkaddr_equal(item_node->address, edge->node1) && item_node->edge == NULL && !networkaddr_equal(networkaddr_node_addr(), edge->node1))
+		
+    // Only one of the following two cases applies because the given edge was selected such that one of its nodes is already connected
+    if(networkaddr_equal(item_node->address, edge->node1) && 
+        item_node->edge == NULL && 
+        !networkaddr_equal(networkaddr_node_addr(), edge->node1))
 			item_node->edge = edge;
-		if(networkaddr_equal(item_node->address, edge->node2) && item_node->edge == NULL && !networkaddr_equal(networkaddr_node_addr(), edge->node2))
+		
+    if(networkaddr_equal(item_node->address, edge->node2) && 
+        item_node->edge == NULL && 
+        !networkaddr_equal(networkaddr_node_addr(), edge->node2))
 			item_node->edge = edge;
+
 	}
 }
 

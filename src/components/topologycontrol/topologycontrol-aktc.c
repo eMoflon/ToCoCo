@@ -59,8 +59,11 @@ PROCESS_THREAD(component_topologycontrol, ev, data) {
 
     // Detailed evaluation output - begin
     unsigned long finish=RTIMER_NOW();
-    unsigned long runtime= finish>start? finish-start:start-finish;
-    printf("[topologycontrol]: TIME: %lu\n", runtime);
+    unsigned long ticks= finish>start? finish-start:start-finish;
+    unsigned long runtimeMicro = (ticks * 1000000)/ RTIMER_SECOND;
+    printf("[topologycontrol]: Ticks: %lu\n", ticks);
+    printf("[topologycontrol]: RTIMER_SECOND (ticks per second): %du\n", RTIMER_SECOND);
+    printf("[topologycontrol]: TIME: %lu microsecs.\n", runtimeMicro);
     // Detailed evaluation output - end
 
 		// drop unidirectional edges

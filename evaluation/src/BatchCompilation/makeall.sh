@@ -16,14 +16,16 @@ applicationConstantDefinitions="$rootOfSource/app-conf-constants.h"
 
 # Adjust the following list according to the COMPONENT_TOPOLOGYCONTROL constants in $applicationConstantDefinitions
 algorithmIdentifiers=(\
-NULL \
-AKTC \
-LKTC \
+#NULL \
+#AKTC \
+#LKTC \
 LMST \
-CMOFLONDEMOLANGUAGE_LSTARKTCALGORITHM \
+#CMOFLONDEMOLANGUAGE_LSTARKTCALGORITHM \
 CMOFLONDEMOLANGUAGE_LMSTALGORITHM \
-CMOFLONDEMOLANGUAGE_KTCALGORITHM\
+#CMOFLONDEMOLANGUAGE_KTCALGORITHM\
 )
+
+skipCleanStep="true"
 
 mkdir -p $outputFolder
 
@@ -42,8 +44,15 @@ do
   [ "" == "$appConfSelector" ] && echo "ERROR: Algorithm ID not found!" && exit
 
   cmd="make -C $rootOfSource clean TARGET=$target"
-  echo "$cmd"
-  $cmd
+  if [ "$skipCleanStep" == "true" ];
+  then
+    echo "SKIPPING $cmd"
+    echo "Removing only topologycontrol* files in obj_$target"
+    rm "$rootOfSource/obj_$target/"topologycontrol*
+  else
+    echo "$cmd"
+    $cmd
+  fi
 
   cmd="make -C $rootOfSource app.$target TARGET=$target TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE=$implementationFile TOPOLOGYCONTROL_PREDEFINED_ALGORITHM=$appConfSelector"
   echo "$cmd"
@@ -58,10 +67,5 @@ do
   }
 done
 
-# Print CSV of image sizes
-$(cd $outputFolder
-  size *.$target > size_raw.txt
-  sed -r 's/^ *//;s/ *$//;s/\s+/;/g' < size_raw.txt > sizes.csv
-)
-
+$(cd $outputFolder;bash $scriptDirectory/../../scripts/collectSensorImageSizes.sh)
 
