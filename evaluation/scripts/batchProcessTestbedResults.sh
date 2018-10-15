@@ -12,8 +12,8 @@ scriptDirectory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ruler="----------------------------------------------------------------------------------------------------"
 
 scriptsForEachFolder=(\
-$scriptDirectory/compareResultsInOut.sh \
 $scriptDirectory/makeSerialOutputProperCsv.sh \
+$scriptDirectory/compareResultsInOut.sh \
 $scriptDirectory/collectTopologyControlRuntime.sh \
 $scriptDirectory/plotTopologyEvolution.sh \
 )

@@ -57,10 +57,14 @@ trait NeighborhoodTrait {
 					
 					
 					if(!isset($address2moteid[$matches2['address_node1']])) 
-						throw new Exception("unknown mote address '" . $matches2['address_node1'] . "' of logid " . $message->getLogid());
+						//throw new Exception("unknown mote address '" . $matches2['address_node1'] . "' of logid " . $message->getLogid());
+            printf("[Warning]: Ignoring " . $link . " due to unknown mote address '" . $matches2['address_node1'] . "' of logid " . $message->getLogid());
+            continue;
 					if(!isset($address2moteid[$matches2['address_node2']]))
-						throw new Exception("unknown mote address '" . $matches2['address_node2'] . "' of logid " . $message->getLogid());
-					
+						//throw new Exception("unknown mote address '" . $matches2['address_node2'] . "' of logid " . $message->getLogid());
+            printf("[Warning]: Ignoring " . $link . " due to unknown mote address '" . $matches2['address_node2'] . "' of logid " . $message->getLogid());
+            continue;
+            
 					$neighborlinks[$minute][$message->getMoteid()][] = [
 						'node1' => $address2moteid[$matches2['address_node1']],
 						'node2' => $address2moteid[$matches2['address_node2']],
