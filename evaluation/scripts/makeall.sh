@@ -9,7 +9,7 @@
 #
 
 scriptDirectory="$(cd $(dirname $0); pwd)"
-rootOfSource="$scriptDirectory/../../../src"
+rootOfSource="$scriptDirectory/../../src"
 outputFolder="$rootOfSource/output/BatchCompilation"
 target="sky"
 applicationConstantDefinitions="$rootOfSource/app-conf-constants.h"
