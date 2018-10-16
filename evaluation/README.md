@@ -57,6 +57,16 @@ Currently, the following scripts are executed per *serial.csv* file.
       Plots the state of the topology every minute in a configurable time range.
       The time range is currently set to the duration of the FlockLab experiments (t=0,1,...,13[min]).
 
+# Summarize sensor image sizes (scripts/collectSensorImageSizes.sh)
+
+The script *collectSensorImageSizes.sh* creates a CSV file that aggregates the image sizes of the sensor images found in the current folder.
+Image files are identified by their extension (.sky for TMote Sky nodes).
+
+Example:
+```
+collectSensorImageSizes.sh
+```
+
 # Comparison of Results (scripts/compareResults.sh, scripts/compareResultsInOut.sh)
 
 There are two kinds of Comparisons:
