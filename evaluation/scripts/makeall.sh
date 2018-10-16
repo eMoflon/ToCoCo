@@ -67,5 +67,5 @@ do
   }
 done
 
-$(cd $outputFolder;bash $scriptDirectory/../../scripts/collectSensorImageSizes.sh)
+$(cd $outputFolder;bash $scriptDirectory/collectSensorImageSizes.sh)
 
