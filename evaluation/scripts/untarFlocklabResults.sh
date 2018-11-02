@@ -30,7 +30,7 @@ do
   
   echo $resultsParentFolder
   
-  resultsSubfolder=$resultsParentFolder/${file%.tar.gz}
+  resultsSubfolder=$(/usr/bin/find $resultsParentFolder -mindepth 1 -type d)
   
   echo $resultsSubfolder
   [ -d "$resultsSubfolder" ] || {
