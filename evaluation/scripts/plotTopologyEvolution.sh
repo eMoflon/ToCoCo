@@ -25,7 +25,7 @@ cliScript=$scriptDirectory/../cli.php
 testbed="flocklab"
 sourceAndTestbedStatement="--source $evaluation --testbed $testbed"
 startTimeMinutes=1
-endTimeMinutes=12
+endTimeMinutes=20
 
 for ((i=startTimeMinutes; i<=endTimeMinutes; i++))
 do
