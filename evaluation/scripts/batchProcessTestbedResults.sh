@@ -20,28 +20,29 @@ $scriptDirectory/plotTopologyEvolution.sh \
 
 bash $scriptDirectory/untarFlocklabResults.sh
 
-for folder in $(/usr/bin/find . -maxdepth 1 -mindepth 1 -type d)
+
+for scriptForEachFolder in ${scriptsForEachFolder[@]}
 do
-  serialFile="$folder/serial.csv"
-  if [ -f "$serialFile" ]
-  then
-    echo $ruler
-    echo "Processing folder $folder"
-    echo $ruler
-    
-    for scriptForEachFolder in ${scriptsForEachFolder[@]}
-    do
-      cmd="$scriptForEachFolder $serialFile"
-      echo $cmd
-      $cmd
-      [ "$?" != "0" ] && {
-        echo "Failure during $cmd"
-        exit 1
-      }
-    done
-  else
-    echo "Skipping folder $folder because no serial.csv file exists in it."
-  fi
+  for folder in $(/usr/bin/find . -maxdepth 1 -mindepth 1 -type d)
+  do
+    serialFile="$folder/serial.csv"
+    if [ -f "$serialFile" ]
+    then
+      echo $ruler
+      echo "Processing folder $folder"
+      echo $ruler
+      
+        cmd="$scriptForEachFolder $serialFile"
+        echo $cmd
+        $cmd
+        [ "$?" != "0" ] && {
+          echo "Failure during $cmd"
+          exit 1
+        }
+    else
+      echo "Skipping folder $folder because no serial.csv file exists in it."
+    fi
+  done
 done
 
 echo $ruler
