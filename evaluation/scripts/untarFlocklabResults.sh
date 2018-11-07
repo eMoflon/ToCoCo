@@ -16,6 +16,7 @@ areThereTarGzFiles=$(ls -la | grep .tar.gz)
   exit
 }
 
+counter=1
 for file in *.tar.gz;
 do
   resultsParentFolder=./${file%.tar.gz}
@@ -26,7 +27,7 @@ do
   }
   
   ruler="----------------------------------------------------------------------------------------------------"
-  echo "Extracting $file to $resultsParentFolder"
+  echo "[$counter] Extracting $file to $resultsParentFolder"
   ruler="----------------------------------------------------------------------------------------------------"
   
   mkdir -p $resultsParentFolder
@@ -56,4 +57,6 @@ do
   echo "  Sanity check: TIME = '$time'"
   errorCount=$(grep -a 'ERROR' $serialFile | wc -l)
   echo "  Number of ERROR lines: '$errorCount'"
+  
+  counter=$[$counter +1]
 done
