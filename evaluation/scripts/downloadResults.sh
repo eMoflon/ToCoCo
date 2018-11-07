@@ -4,6 +4,8 @@
 # The script extracts the test ID (currently a five-digit number) from the XML filename and the archive name corresponds to the XML file but with extension tar.gz.
 # The FlockLab username and password are either prompted interactively or can be set permanently via the env. vars. FLOCKLAB_USER and FLOCKLAB_PASSWORD.
 #
+# Documentation on the WebDAV of FlockLab is available at https://gitlab.ethz.ch/tec/public/flocklab/wikis/Man/WebDAVMount
+#
 # Author: Roland Kluge
 # Date: 2018-11-06
 #
@@ -19,13 +21,23 @@ do
   
   testId=$(echo $xmlFile | sed -r 's/^([[:digit:]]+).*/\1/')
   [ "$testId" == "" ] && {
-    echo "Could not extract a test ID from the file name $xmlFile."
+    echo "  Could not extract a test ID from the file name $xmlFile."
     continue
   }
   
+  flocklabWebdavTestPrefix="$flocklabWebdavPrefix$testId/"
+  
+  # testconfigurationFilename="${xmlFile%.xml}_finalConfiguration.txt"
+  # [ -f "$testconfigurationFilename" ] || {
+    ## archiveFileSize=$(curl -sI --user $flocklabUser:$flocklabPassword $flocklabWebdavResultsUrl | grep -i content-length | awk '{print $2}')
+    # echo "  Download test configuration file to $testconfigurationFilename."
+    # echo "  curl --user *** ${flocklabWebdavTestPrefix}testconfiguration.xml --output $testconfigurationFilename"
+    # curl --user $flocklabUser:$flocklabPassword ${flocklabWebdavTestPrefix}testconfiguration.xml --output $testconfigurationFilename
+  # }
+  
   archiveFilename="${xmlFile%.xml}.tar.gz"
   [ -f "$archiveFilename" ] && {
-    echo "Archive file $archiveFilename already exists."
+    echo "  Archive file $archiveFilename already exists."
   } || {
         
     if [ "$flocklabUser" == "" ];
@@ -44,14 +56,16 @@ do
       }
     fi
     
-    flocklabWebdavResultsUrl=$flocklabWebdavPrefix$testId/results.tar.gz
+    
+    
+    flocklabWebdavResultsUrl=${flocklabWebdavTestPrefix}results.tar.gz
     # Query size of file without downloading the file
     archiveFileSize=$(curl -sI --user $flocklabUser:$flocklabPassword $flocklabWebdavResultsUrl | grep -i content-length | awk '{print $2}')
     [ "$archiveFileSize" == "" ] && {
-      echo "No results available for $xmlFile yet."
+      echo "  No results available for $xmlFile yet."
     } || {    
       # Perform the actual download
-      echo "curl https://www.flocklab.ethz.ch/user/webdav/$testId/results.tar.gz --output $archiveFilename"
+      echo "  Download results: curl ${flocklabWebdavResultsUrl}results.tar.gz --output $archiveFilename"
       curl --user $flocklabUser:$flocklabPassword $flocklabWebdavResultsUrl --output $archiveFilename
     }
     

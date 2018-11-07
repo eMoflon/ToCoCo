@@ -19,9 +19,8 @@ areThereTarGzFiles=$(ls -la | grep .tar.gz)
 for file in *.tar.gz;
 do
   resultsParentFolder=./${file%.tar.gz}
-  resultsParentFolderExists=$(/usr/bin/find $resultsParentFolder -mindepth 0 -type d)
   
-  [ "$resultsParentFolderExists" != "" ] && {
+  [ -d "$resultsParentFolder" ] && {
     echo "Skipped $file because it has been extracted already."
     continue
   }
