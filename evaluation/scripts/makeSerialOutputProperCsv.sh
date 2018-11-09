@@ -15,12 +15,23 @@ exit 1
 inputFile=$1
 outputFile="${1%.*}_excel.csv"
 
-# Column format
+sed -i 's/^1541//g' $inputFile
+startTime=$(head -2 $inputFile | tail -1 | awk -F, '{print $1}')
+
+# Input Column format
 # 1 timestamp
 # 2 observer ID (skipped)
 # 3 node ID
 # 4 direction (skipped)
 # 5 output (may contain commas, therefore, we read the rest of the line and enclose it with quotes)
+# Output column format
+# 1 timestamp
+# 2 time in seconds (timestamp of row - timestamp of first row)
+# 3 node ID
+# 4 output (enclosed by ")
 #
-awk -F, -- '{printf "%s;%s;\"",$1,$3; for (i=5; i<=NF; i++) printf ("%s,",$i); print "\"";}' $inputFile > $outputFile
-sed -i -r 's/([[:digit:]]+).0/\1/g' $outputFile
+awkString="{printf(\"%s;%s;%s;\\\"\",\$1,\$1-${startTime},\$3); for (i=5; i<=NF; i++) printf (\"%s,\",\$i); print \"\\\"\";}"
+awk -F, -- "$awkString" $inputFile > $outputFile
+
+# Improve formatting of links. Node ids always have a trailing '.0' for some strange reason
+sed -i -r 's/([[:digit:]]+)\.0[-~]>([[:digit:]]+)\.0/\1->\2/g' $outputFile
