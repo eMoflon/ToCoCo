@@ -30,6 +30,9 @@ TARGET_LIBFILES += -lm
 CFLAGS += -DPROJECT_CONF_H=\"project-conf.h\"
 CFLAGS += -DCONTIKI_REPLACEMENTS_LOCAL=$(CONTIKI_REPLACEMENTS_LOCAL)
 CFLAGS += -ggdb
+# Turn off warnings about unused code because the generated code contains numerous unused variables and functions.
+# The corresponding warning messages could obfuscate relevant warning messages.
+CFLAGS += -Wno-unused-variable -Wno-unused-function
 
 # The following block adds a preprocessor #define for COMPONENT_TOPOLOGYCONTROL if the environment variable
 # TOPOLOGYCONTROL_PREDEFINED_ALGORITHM is set.
