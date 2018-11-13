@@ -23,30 +23,29 @@ do
   
   [ -d "$resultsParentFolder" ] && {
     echo "Skipped $file because it has been extracted already."
-    continue
+  } || {
+    ruler="----------------------------------------------------------------------------------------------------"
+    echo "[$counter] Extracting $file to $resultsParentFolder"
+    ruler="----------------------------------------------------------------------------------------------------"
+    
+    mkdir -p $resultsParentFolder
+    cp $file $resultsParentFolder
+    tar -C $resultsParentFolder -xzf $file
+    rm $resultsParentFolder/$file
+    
+    echo $resultsParentFolder
+    
+    resultsSubfolder=$(/usr/bin/find $resultsParentFolder -mindepth 1 -type d)
+    
+    echo $resultsSubfolder
+    [ -d "$resultsSubfolder" ] || {
+      echo "Unable to find folder containing untarred results. Stop." 
+      exit
+    }
+    
+    mv $resultsSubfolder/* $resultsParentFolder
+    rm -rf $resultsSubfolder
   }
-  
-  ruler="----------------------------------------------------------------------------------------------------"
-  echo "[$counter] Extracting $file to $resultsParentFolder"
-  ruler="----------------------------------------------------------------------------------------------------"
-  
-  mkdir -p $resultsParentFolder
-  cp $file $resultsParentFolder
-  tar -C $resultsParentFolder -xzf $file
-  rm $resultsParentFolder/$file
-  
-  echo $resultsParentFolder
-  
-  resultsSubfolder=$(/usr/bin/find $resultsParentFolder -mindepth 1 -type d)
-  
-  echo $resultsSubfolder
-  [ -d "$resultsSubfolder" ] || {
-    echo "Unable to find folder containing untarred results. Stop." 
-    exit
-  }
-  
-  mv $resultsSubfolder/* $resultsParentFolder
-  rm -rf $resultsSubfolder
   
   serialFile=$resultsParentFolder/serial.csv
   algorithm=$(grep -a "topologycontrol: " $serialFile | head -1 | sed -r "s/^.*topologycontrol: (.*)'.*/\1/g")
@@ -56,7 +55,19 @@ do
   time=$(grep -a "TIME: " $serialFile | head -1)
   echo "  Sanity check: TIME = '$time'"
   errorCount=$(grep -a 'ERROR' $serialFile | wc -l)
-  echo "  Number of ERROR lines: '$errorCount'"
+  echo "  Sanity check: Number of ERROR lines = '$errorCount'"
+  
+  startedNodes=$(grep "STATUS" $serialFile | awk -F, '{print $2}' | /usr/bin/sort -n)
+  stoppedNodes=$(grep "Ticks:" $serialFile | awk -F, '{print $2}' | /usr/bin/sort -n)
+  nodesThatDidNotStop=$(diff -- <(echo "$startedNodes") <(echo "$stoppedNodes") | tr "\n" " ")
+  [ "$nodesThatDidNotStop" != "" ] && {
+    warningPrefix="!! ===>"
+  } || {
+    warningPrefix="  "
+  }
+  echo "${warningPrefix}Sanity check: Are there nodes that did not stop? '${nodesThatDidNotStop}'"
+  
+
   
   counter=$[$counter +1]
 done
