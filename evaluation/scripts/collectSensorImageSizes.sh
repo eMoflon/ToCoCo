@@ -22,4 +22,5 @@ mkdir -p $outputFolder
 
 size *.$target > $rawFile
 sed -r 's/^ *//;s/ *$//;s/\s+/;/g' < $rawFile > $csvFile
+sed -ri 's/;[[:digit:]]+_/;/g' $csvFile
 rm $rawFile

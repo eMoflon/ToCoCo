@@ -45,27 +45,29 @@ do
     
     mv $resultsSubfolder/* $resultsParentFolder
     rm -rf $resultsSubfolder
+    
+    serialFile=$resultsParentFolder/serial.csv
+    algorithm=$(grep -a "topologycontrol: " $serialFile | head -1 | sed -r "s/^.*topologycontrol: (.*)'.*/\1/g")
+    echo "  Sanity check: topology control algorithm = '$algorithm'"
+    degree=$(grep -a "DEGREE: " $serialFile | head -1)
+    echo "  Sanity check: DEGREE = '$degree'"
+    time=$(grep -a "TIME: " $serialFile | head -1)
+    echo "  Sanity check: TIME = '$time'"
+    errorCount=$(grep -a 'ERROR' $serialFile | wc -l)
+    echo "  Sanity check: Number of ERROR lines = '$errorCount'"
+    
+    startedNodes=$(grep "STATUS" $serialFile | awk -F, '{print $2}' | /usr/bin/sort -n)
+    stoppedNodes=$(grep "Ticks:" $serialFile | awk -F, '{print $2}' | /usr/bin/sort -n)
+    nodesThatDidNotStop=$(diff -- <(echo "$startedNodes") <(echo "$stoppedNodes") | tr "\n" " ")
+    [ "$nodesThatDidNotStop" != "" ] && {
+      warningPrefix="!! ===>"
+    } || {
+      warningPrefix="  "
+    }
+    echo "${warningPrefix}Sanity check: Are there nodes that did not stop? '${nodesThatDidNotStop}'"
+    
   }
   
-  serialFile=$resultsParentFolder/serial.csv
-  algorithm=$(grep -a "topologycontrol: " $serialFile | head -1 | sed -r "s/^.*topologycontrol: (.*)'.*/\1/g")
-  echo "  Sanity check: topology control algorithm = '$algorithm'"
-  degree=$(grep -a "DEGREE: " $serialFile | head -1)
-  echo "  Sanity check: DEGREE = '$degree'"
-  time=$(grep -a "TIME: " $serialFile | head -1)
-  echo "  Sanity check: TIME = '$time'"
-  errorCount=$(grep -a 'ERROR' $serialFile | wc -l)
-  echo "  Sanity check: Number of ERROR lines = '$errorCount'"
-  
-  startedNodes=$(grep "STATUS" $serialFile | awk -F, '{print $2}' | /usr/bin/sort -n)
-  stoppedNodes=$(grep "Ticks:" $serialFile | awk -F, '{print $2}' | /usr/bin/sort -n)
-  nodesThatDidNotStop=$(diff -- <(echo "$startedNodes") <(echo "$stoppedNodes") | tr "\n" " ")
-  [ "$nodesThatDidNotStop" != "" ] && {
-    warningPrefix="!! ===>"
-  } || {
-    warningPrefix="  "
-  }
-  echo "${warningPrefix}Sanity check: Are there nodes that did not stop? '${nodesThatDidNotStop}'"
   
 
   
