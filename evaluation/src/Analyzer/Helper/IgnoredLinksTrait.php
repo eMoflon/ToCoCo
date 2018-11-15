@@ -49,10 +49,11 @@ trait IgnoredLinksTrait {
 					continue;
 				
 				foreach(explode(", ", trim($matches["ignoredlinks"])) as $ignoredlink) {
-					if(!isset($address2moteid[$ignoredlink]))
+					if(!isset($address2moteid[$ignoredlink])) {
 						//throw new Exception("unknown mote address '" . $ignoredlink . "' of logid " . $message->getLogid());
             printf("[Warning]: Unknown mote address '" . $ignoredlink . "' of logid " . $message->getLogid() . "\n");
             continue;
+          }
 					
 					$ignoredlinks[$minute][$message->getMoteid()][] = $address2moteid[$ignoredlink];
 				}
