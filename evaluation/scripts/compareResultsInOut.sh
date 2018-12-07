@@ -11,7 +11,7 @@ scriptDirectory="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 evaluation=$1
 
 [ -f $1 ] || {
-echo "Expect Serial input file as first parameter"
+echo "Expect serial input file as first parameter, but was $1 in $(pwd)"
 exit 1
 }
 
@@ -27,22 +27,21 @@ comparison="-io"
 testbed="flocklab"
 sourceAndTestbedStatement="--source $evaluation --testbed $testbed"
 beforeTimeMinutes=10
-afterTimeMinutes=14
-topologyBeforeDotFile=$evalDirectory/01_TopologyBefore.txt
-topologyAfterDotFile=$evalDirectory/02_TopologyAfter.txt
-topologyBeforePlotFile=$evalDirectory/01_TopologyBefore.png
-topologyAfterPlotFile=$evalDirectory/02_TopologyAfter.png
+afterTimeMinutes=20
+topologyBeforeDotFile=$evalDirectory/01_TopologyBefore_Time${beforeTimeMinutes}.txt
+topologyAfterDotFile=$evalDirectory/02_TopologyAfter_Time${afterTimeMinutes}.txt
+topologyBeforePlotFile=$evalDirectory/01_TopologyBefore_Time${beforeTimeMinutes}.png
+topologyAfterPlotFile=$evalDirectory/02_TopologyAfter_Time${afterTimeMinutes}.png
 
 echo "Comparing $evaluation at minute $beforeTimeMinutes with $evaluation at minute $afterTimeMinutes"
 $cliScript $sourceAndTestbedStatement --evaluation graph-text --destination $topologyBeforeDotFile  --graph-minute $beforeTimeMinutes
 $cliScript $sourceAndTestbedStatement --evaluation graph-text --destination $topologyAfterDotFile --graph-minute $afterTimeMinutes
 
+# The following code produces the delta topology
 cd $scriptDirectory/../GraphAnalyzer
 make
 cd $workingDirectory
-
 $scriptDirectory/../GraphAnalyzer/graphanalyzer $inputFormat $topologyBeforeDotFile $topologyAfterDotFile $comparison $outputFormat $evalDirectory/$output
-
 echo "Generating PNG file "${output%%.*}".png"
 dot -Tpng -Kneato -n -o "$evalDirectory/${output%%.*}.png" $evalDirectory/$output
 

@@ -2,8 +2,15 @@
 CONTIKI=/full/path/to/contiki
 
 # whether ipv6 should be used
-NETWORK_IPV6 = 1
+NETWORK_IPV6 = 0
 
 # whether contiki replacements are used from local library or have been replaced in core contiki files
 # (some compilers do not the support the local library replacements)
 CONTIKI_REPLACEMENTS_LOCAL=1
+
+# Custom implementation file for TC algorithms.
+# Leave empty to not specify such a file.
+ifndef TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE
+# Example: TOPOLOGYCONTROL_PREDEFINED_IMPL_FILE=topologycontrol-CMoflonDemoLanguage-KtcAlgorithm.c
+endif
+

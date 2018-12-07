@@ -15,7 +15,7 @@
 #define APP_GIT_VERSION "unknown"
 #endif
 
-#define DESIRED_POWER_LEVEL 30
+#define DESIRED_POWER_LEVEL 3
 
 extern struct process component_application;
 extern struct process component_neighbordiscovery;
